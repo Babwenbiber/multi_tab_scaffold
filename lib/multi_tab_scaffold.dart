@@ -1,6 +1,10 @@
+import 'package:cupertino_nav/util/navbar_state.dart';
+import 'package:cupertino_nav/util/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'bloc/navstate_bloc.dart';
 import 'navigation.dart';
 
 class MultiTabScaffold extends StatefulWidget {
@@ -24,14 +28,20 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
   final List<CupertinoTabView> _tabs = [];
   final Set<int> tabStack = {};
   final CupertinoTabController _tabController = CupertinoTabController();
-
+  int activeIndex = 0;
   @override
   void initState() {
     for (var element in widget.pages) {
       _tabs.add(CupertinoTabView(
         navigatorKey: GlobalKey<NavigatorState>(),
         builder: (context) => element,
-        onGenerateRoute: Navigation.onGenerateRoute,
+        onGenerateRoute: (settings) {
+          final route = Navigation.onGenerateRoute(settings);
+          BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
+              getNavbarStateFromRouteName(
+                  settings.name, _tabController.index)));
+          return route;
+        },
         navigatorObservers: widget.navigatorObservers,
       ));
     }
@@ -43,22 +53,35 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: CupertinoPageScaffold(
-        child: CupertinoTabScaffold(
-            controller: _tabController,
-            tabBar: CupertinoTabBar(
-              onTap: onTap,
-              items: widget.items,
-            ),
-            tabBuilder: (BuildContext context, index) {
-              return _tabs[index];
-            }),
-      ),
+      child: BlocBuilder<NavstateBloc, NavstateAbstractState>(
+          builder: (context, NavstateAbstractState state) {
+        late NavbarState navBarState;
+        if (state is NavstateState) {
+          navBarState = state.navbarState;
+        } else {
+          navBarState =
+              getNavbarStateFromRouteName(getRouteName(), _tabController.index);
+        }
+        return CupertinoPageScaffold(
+          navigationBar:
+              CupertinoNavigationBar(middle: Text(navBarState.title)),
+          child: CupertinoTabScaffold(
+              controller: _tabController,
+              tabBar: CupertinoTabBar(
+                onTap: onTap,
+                items: widget.items,
+              ),
+              resizeToAvoidBottomInset: navBarState.resizeBottom,
+              tabBuilder: (BuildContext context, index) {
+                return _tabs[index];
+              }),
+        );
+      }),
     );
   }
 
   void onTap(int tappedIndex) {
-    if (_tabController.index == tappedIndex) {
+    if (activeIndex == tappedIndex) {
       _tabs[_tabController.index]
           .navigatorKey
           ?.currentState
@@ -67,25 +90,59 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
     tabStack.remove(tappedIndex);
     tabStack.add(tappedIndex);
     _tabController.index = tappedIndex;
+    activeIndex = tappedIndex;
+    BuildContext? _context =
+        _tabs[_tabController.index].navigatorKey?.currentContext;
+    if (_context != null) {
+      BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
+          getNavbarStateFromRouteName(
+              ModalRoute.of(_context)?.settings.name, _tabController.index)));
+    } else {
+      BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
+          getNavbarStateFromRouteName(getRouteName(), _tabController.index)));
+    }
   }
 
   Future<bool> _onWillPop() async {
     bool canPop =
         _tabs[_tabController.index].navigatorKey?.currentState?.canPop() ??
             false;
-
+    bool willPop = false;
     if (!canPop) {
       if (tabStack.length > 1) {
         tabStack.remove(_tabController.index);
         setState(() {
           _tabController.index = tabStack.last;
         });
+        activeIndex = _tabController.index;
       } else {
-        return true;
+        willPop = true;
       }
     } else {
       _tabs[_tabController.index].navigatorKey?.currentState?.pop();
     }
-    return false;
+    BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
+        getNavbarStateFromRouteName(
+            ModalRoute.of(
+                    _tabs[_tabController.index].navigatorKey!.currentContext!)
+                ?.settings
+                .name,
+            _tabController.index)));
+    print(
+        "current route ${ModalRoute.of(_tabs[_tabController.index].navigatorKey!.currentContext!)?.settings.name}");
+    return willPop;
+  }
+
+  String getRouteName() {
+    BuildContext? context =
+        _tabs[_tabController.index].navigatorKey?.currentContext;
+    String? route;
+    if (context != null) {
+      route = ModalRoute.of(context)?.settings.name;
+    }
+    if (route == null || route == "/") {
+      route = getRouteNameFromRoutePages(_tabController.index);
+    }
+    return route;
   }
 }

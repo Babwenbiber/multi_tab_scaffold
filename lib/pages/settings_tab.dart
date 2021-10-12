@@ -1,8 +1,10 @@
+import 'package:cupertino_nav/pages/settings_tab2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({Key? key}) : super(key: key);
+  static const routeName = "/settings_tab";
 
   @override
   State<StatefulWidget> createState() => _SettingsTabState();
@@ -15,7 +17,7 @@ class _SettingsTabState extends State<SettingsTab> {
     return Center(
       child: GestureDetector(
           onTap: () {
-            Navigator.pushNamed(context, "/settings2");
+            Navigator.pushNamed(context, SettingsTab2.routeName);
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
