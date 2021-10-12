@@ -5,20 +5,20 @@ import 'package:cupertino_nav/pages/home_tab.dart';
 import 'package:cupertino_nav/pages/settings_tab.dart';
 import 'package:cupertino_nav/pages/settings_tab2.dart';
 
-import 'navbar_state.dart';
+import 'scaffold_properties.dart';
 
-NavbarState getNavbarStateFromRouteName(String? route, int index) {
+ScaffoldProperties getScaffoldPropertiesFromRouteName(String? route, int index) {
   switch (route) {
     case HomeTab.routeName:
-      return NavbarState(title: "home", resizeBottom: true);
+      return ScaffoldProperties(title: "home", resizeBottom: true);
     case SettingsTab.routeName:
-      return NavbarState(title: "settings 1", resizeBottom: false);
+      return ScaffoldProperties(title: "settings 1", resizeBottom: false);
     case SettingsTab2.routeName:
-      return NavbarState(title: "settings 2", resizeBottom: true);
+      return ScaffoldProperties(title: "settings 2", resizeBottom: true);
     case "/":
-      return getNavbarStateFromRoutePages(index);
+      return getScaffoldPropertiesFromRoutePages(index);
   }
-  return NavbarState(title: "NO ROUTE FOUND", resizeBottom: true);
+  return ScaffoldProperties(title: "NO ROUTE FOUND", resizeBottom: true);
 }
 
 String getRouteNameFromRoutePages(int index) {
@@ -31,6 +31,6 @@ switch (index) {
   return "unknown INDEX $index";
 }
 
-NavbarState getNavbarStateFromRoutePages(int index) { 
-  return getNavbarStateFromRouteName(getRouteNameFromRoutePages(index), index);
+ScaffoldProperties getScaffoldPropertiesFromRoutePages(int index) { 
+  return getScaffoldPropertiesFromRouteName(getRouteNameFromRoutePages(index), index);
 }

@@ -1,4 +1,4 @@
-import 'package:cupertino_nav/bloc/navstate_bloc.dart';
+import 'package:cupertino_nav/bloc/my_scaffold_bloc.dart';
 import 'package:cupertino_nav/pages/home_tab.dart';
 import 'package:cupertino_nav/pages/settings_tab.dart';
 
@@ -14,7 +14,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  final NavstateBloc bloc = NavstateBloc();
+  final MyScaffoldBloc bloc = MyScaffoldBloc();
   MyApp({Key? key}) : super(key: key);
 
   @override

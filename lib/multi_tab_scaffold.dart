@@ -1,10 +1,10 @@
-import 'package:cupertino_nav/util/navbar_state.dart';
+import 'package:cupertino_nav/util/scaffold_properties.dart';
 import 'package:cupertino_nav/util/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'bloc/navstate_bloc.dart';
+import 'bloc/my_scaffold_bloc.dart';
 import 'navigation.dart';
 
 class MultiTabScaffold extends StatefulWidget {
@@ -37,8 +37,8 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
         builder: (context) => element,
         onGenerateRoute: (settings) {
           final route = Navigation.onGenerateRoute(settings);
-          BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
-              getNavbarStateFromRouteName(
+          BlocProvider.of<MyScaffoldBloc>(context).add(MyScaffoldEvent(
+              getScaffoldPropertiesFromRouteName(
                   settings.name, _tabController.index)));
           return route;
         },
@@ -53,25 +53,25 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: _onWillPop,
-      child: BlocBuilder<NavstateBloc, NavstateAbstractState>(
-          builder: (context, NavstateAbstractState state) {
-        late NavbarState navBarState;
-        if (state is NavstateState) {
-          navBarState = state.navbarState;
+      child: BlocBuilder<MyScaffoldBloc, MyAbstractScaffoldState>(
+          builder: (context, MyAbstractScaffoldState state) {
+        late ScaffoldProperties scaffoldProperties;
+        if (state is MyScaffoldState) {
+          scaffoldProperties = state.scaffoldProperties;
         } else {
-          navBarState =
-              getNavbarStateFromRouteName(getRouteName(), _tabController.index);
+          scaffoldProperties =
+              getScaffoldPropertiesFromRouteName(getRouteName(), _tabController.index);
         }
         return CupertinoPageScaffold(
           navigationBar:
-              CupertinoNavigationBar(middle: Text(navBarState.title)),
+              CupertinoNavigationBar(middle: Text(scaffoldProperties.title)),
           child: CupertinoTabScaffold(
               controller: _tabController,
               tabBar: CupertinoTabBar(
                 onTap: onTap,
                 items: widget.items,
               ),
-              resizeToAvoidBottomInset: navBarState.resizeBottom,
+              resizeToAvoidBottomInset: scaffoldProperties.resizeBottom,
               tabBuilder: (BuildContext context, index) {
                 return _tabs[index];
               }),
@@ -94,12 +94,12 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
     BuildContext? _context =
         _tabs[_tabController.index].navigatorKey?.currentContext;
     if (_context != null) {
-      BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
-          getNavbarStateFromRouteName(
+      BlocProvider.of<MyScaffoldBloc>(context).add(MyScaffoldEvent(
+          getScaffoldPropertiesFromRouteName(
               ModalRoute.of(_context)?.settings.name, _tabController.index)));
     } else {
-      BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
-          getNavbarStateFromRouteName(getRouteName(), _tabController.index)));
+      BlocProvider.of<MyScaffoldBloc>(context).add(MyScaffoldEvent(
+          getScaffoldPropertiesFromRouteName(getRouteName(), _tabController.index)));
     }
   }
 
@@ -121,8 +121,8 @@ class _MultiTabScaffoldState extends State<MultiTabScaffold> {
     } else {
       _tabs[_tabController.index].navigatorKey?.currentState?.pop();
     }
-    BlocProvider.of<NavstateBloc>(context).add(NavstateEvent(
-        getNavbarStateFromRouteName(
+    BlocProvider.of<MyScaffoldBloc>(context).add(MyScaffoldEvent(
+        getScaffoldPropertiesFromRouteName(
             ModalRoute.of(
                     _tabs[_tabController.index].navigatorKey!.currentContext!)
                 ?.settings
