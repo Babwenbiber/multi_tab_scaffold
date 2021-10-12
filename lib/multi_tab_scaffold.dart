@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bloc/my_scaffold_bloc.dart';
-import 'navigation.dart';
+import 'util/navigation.dart';
 
 class MultiTabScaffold extends StatefulWidget {
   const MultiTabScaffold(

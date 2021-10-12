@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'multi_tab_scaffold.dart';
-import 'navigation.dart';
+import 'util/navigation.dart';
 
 void main() {
   runApp(MyApp());
