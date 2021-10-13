@@ -17,7 +17,8 @@ class _SettingsTabState extends State<SettingsTab> {
     return Center(
       child: GestureDetector(
           onTap: () {
-            Navigator.pushNamed(context, SettingsTab2.routeName);
+            Navigator.pushNamed(context, SettingsTab2.routeName,
+                arguments: "settings");
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

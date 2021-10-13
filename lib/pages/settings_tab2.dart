@@ -13,7 +13,8 @@ class SettingsTab2 extends StatelessWidget {
               context,
             );
           },
-          child: const Text('Settings Tab 2')),
+          child:
+              Text('Settings Tab 2 ${ModalRoute.of(context)?.settings.name}')),
     );
   }
 }

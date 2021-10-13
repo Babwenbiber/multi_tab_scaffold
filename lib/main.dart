@@ -1,40 +1,68 @@
-import 'package:cupertino_nav/bloc/my_scaffold_bloc.dart';
 import 'package:cupertino_nav/pages/home_tab.dart';
 import 'package:cupertino_nav/pages/settings_tab.dart';
+import 'package:cupertino_nav/util/scaffold_properties.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'multi_tab_scaffold.dart';
-import 'util/navigation.dart';
+import 'pages/settings_tab2.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final MyScaffoldBloc bloc = MyScaffoldBloc();
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => bloc,
-      child: CupertinoApp(
-        theme: const CupertinoThemeData(
-          scaffoldBackgroundColor: Colors.grey,
-        ),
-        home: MultiTabScaffold(
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: 'Settings')
-          ],
-          onGenerateRoute: (settings) => Navigation.onGenerateRoute(settings),
-          pages: const [HomeTab(), SettingsTab()],
-        ),
-        onGenerateRoute: Navigation.onGenerateRoute,
+    return CupertinoApp(
+      theme: const CupertinoThemeData(
+        scaffoldBackgroundColor: Colors.grey,
+      ),
+      home: MultiTabScaffold(
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings')
+        ],
+        onGenerateRoute: (settings) {
+          switch (settings.name) {
+            case HomeTab.routeName:
+              return CupertinoPageRoute(builder: (context) {
+                return const HomeTab();
+              });
+            case SettingsTab.routeName:
+              return CupertinoPageRoute(builder: (context) {
+                return const SettingsTab();
+              });
+            case SettingsTab2.routeName:
+              return CupertinoPageRoute(builder: (context) {
+                return const SettingsTab2();
+              });
+          }
+          return CupertinoPageRoute(builder: (context) {
+            return const HomeTab();
+          });
+        },
+        getScaffoldPropertiesFromRouteName: (String? route) {
+          switch (route) {
+            case HomeTab.routeName:
+              return ScaffoldProperties(title: "home", resizeBottom: true);
+            case SettingsTab.routeName:
+              return ScaffoldProperties(
+                  title: "settings 1", resizeBottom: false);
+            case SettingsTab2.routeName:
+              return ScaffoldProperties(
+                  title: "settings 2", resizeBottom: true);
+          }
+          return ScaffoldProperties(
+              title: "NO ROUTE FOUND", resizeBottom: true);
+        },
+        pages: const [
+          NamedWidget(page: HomeTab(), routeName: HomeTab.routeName),
+          NamedWidget(page: SettingsTab(), routeName: SettingsTab.routeName)
+        ],
       ),
     );
   }
